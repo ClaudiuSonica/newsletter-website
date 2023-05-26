@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const https = require("https");
 const { parse } = require("path");
 const { request } = require("http");
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 const app = express();
 
@@ -41,10 +41,17 @@ app.post("/", (req, res) => {
 
   const options = {
     method: "post",
-    auth: "claudiu:4f56f48f4cc2b639efaae1e14e875cb7-us10"
+    auth: "claudiu:f299a8f57071fa8d635485a96946fd0f-us10"
   }
 
   const request =  https.request(url, options, (response) => {
+
+    if (response.statusCode === 200) {
+      res.sendFile(__dirname + "/success.html");
+    } else {
+      res.sendFile(__dirname + "/failure.html");
+    }
+
     response.on("data", (data) => {
       console.log(JSON.parse(data));
     })
@@ -53,6 +60,10 @@ app.post("/", (req, res) => {
 
   request.write(jsonData);
   request.end();
+});
+
+app.post("/failure", (req, res) => {
+  res.redirect("/");
 });
 
 app.listen(port, () => {
